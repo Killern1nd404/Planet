@@ -36,6 +36,19 @@ def create_sphere():
     bm.free()
 
 
+def make_object_by_points_(vertexes_):
+    mesh = bpy.data.meshes.new("Planet")
+    object_ = bpy.data.objects.new(mesh.name, mesh)
+    collection = bpy.data.collections["Collection"]
+    collection.objects.link(object_)
+    bpy.context.view_layer.objects.active = object_
+    
+    edges = []
+    faces = []
+
+    mesh.from_pydata(vertexes_, edges, faces)
+    
+
 def make_object_by_points():
     mesh = bpy.data.meshes.new("myBeautifulMesh")  # add the new mesh
     obj = bpy.data.objects.new(mesh.name, mesh)
@@ -43,7 +56,7 @@ def make_object_by_points():
     col.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
 
-    vertexes = [(0.5,  1.0,  0.0), (1.0, -1.0,  0.0), (-1.0, -1.0,  0.0), (-1.0,  1.0,  0.0), (1, 2, 3)]
+    vertexes = [[0.5,  1.0,  0.0], (1.0, -1.0,  0.0), (-1.0, -1.0,  0.0), (-1.0,  1.0,  0.0), (1, 2, 3)]
 
     verts = [( 1.0,  1.0,  0.0),
              ( 1.0, -1.0,  0.0),
@@ -59,7 +72,10 @@ def make_object_by_points():
 clear_scene()
 #create_sphere()
 #move_vertex()
-make_object_by_points()
+#make_object_by_points()
+
+vertexes = [[0.5, 1.0, 0.0], (1.0, -1.0, 0.0), (-1.0, -1.0, 0.0), (-1.0, 1.0, 0.0), (1, 2, 3)]
+make_object_by_points_(vertexes)
 
 
 """mesh = bpy.data.meshes.new('Basic_Sphere')
