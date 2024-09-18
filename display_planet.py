@@ -1,16 +1,19 @@
 import bpy
 import bmesh
-from math import pi, cos, sin
+#from math import pi, cos, sin
 
-###
-###
+# Объявление файла как модуля для открытия в Blender
+my_module = bpy.data.texts["my_module"].as_module()
+
 
 def clear_scene():
-    # kill everything
+    # Выделение всех объектов на сцене
     bpy.ops.object.select_all(action='SELECT')
+    # Удаление выделенных объектов
     bpy.ops.object.delete(use_global=False, confirm=False)
 
 
+"""
 def move_vertex():
     bpy.data.objects["Basic_Sphere.002"].data.vertices[0].co.x += 0.02
     bpy.data.objects["Basic_Sphere.002"].data.vertices[0].co.y -= 0.02
@@ -34,21 +37,28 @@ def create_sphere():
     bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, radius=1)
     bm.to_mesh(mesh)
     bm.free()
+"""
 
 
-def make_object_by_points_(vertexes_):
+def make_object_by_points(vertexes):
+    # Инициация объекта
     mesh = bpy.data.meshes.new("Planet")
-    object_ = bpy.data.objects.new(mesh.name, mesh)
+    object_ = bpy.data.objects.new("Planet", mesh)
+    # Добавление объекта в коллекцию
     collection = bpy.data.collections["Collection"]
     collection.objects.link(object_)
+    # Объявление объекта активным
     bpy.context.view_layer.objects.active = object_
-    
+
+    # Рёбра и грани
     edges = []
     faces = []
 
-    mesh.from_pydata(vertexes_, edges, faces)
+    # Добавление объекта на сцену
+    mesh.from_pydata(vertexes, edges, faces)
     
 
+"""
 def make_object_by_points():
     mesh = bpy.data.meshes.new("myBeautifulMesh")  # add the new mesh
     obj = bpy.data.objects.new(mesh.name, mesh)
@@ -67,15 +77,16 @@ def make_object_by_points():
     faces = [[0, 1, 2, 3], [0, 1, 4], [0, 3, 4], [2, 3, 4], [1, 2, 4]]
 
     mesh.from_pydata(vertexes, edges, faces)
+"""
 
 
-clear_scene()
-#create_sphere()
-#move_vertex()
-#make_object_by_points()
+def initialize_scene(vertexes):
+    clear_scene()
+    make_object_by_points(vertexes)
 
-vertexes = [[0.5, 1.0, 0.0], (1.0, -1.0, 0.0), (-1.0, -1.0, 0.0), (-1.0, 1.0, 0.0), (1, 2, 3)]
-make_object_by_points_(vertexes)
+
+# vertexes_ = [[0.5, 1.0, 0.0], (1.0, -1.0, 0.0), (-1.0, -1.0, 0.0), (-1.0, 1.0, 0.0), (1, 2, 3)]
+# initialize_scene(vertexes_)
 
 
 """mesh = bpy.data.meshes.new('Basic_Sphere')
@@ -110,8 +121,8 @@ except:
     pass"""
 
 
-#bpy.ops.mesh.primitive_cube_add(location=(0, 0, 0))
-#bpy.data.objects["Куб"].data.vertices[0].co.x += 1.0
+# bpy.ops.mesh.primitive_cube_add(location=(0, 0, 0))
+# bpy.data.objects["Куб"].data.vertices[0].co.x += 1.0
 """Obj = bpy.context.active_object
 mod = Obj.modifiers.new("Bevel", 'BEVEL')
 mod.segments = 3
