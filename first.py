@@ -21,12 +21,12 @@ class Direction:
     def point_by_dir(self):
         theta = self._direction[0]
         phi = self._direction[1]
-        self._point = (sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta))
+        self._point = [sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta)]
 
     def dir_by_point(self):
-        self.direction = (acos(self.point[2]),
+        self.direction = [acos(self.point[2]),
                           atan2(self.point[1],
-                                self.point[0]))
+                                self.point[0])]
 
     @property
     def direction(self):
@@ -72,32 +72,27 @@ class Relations:
 def find_point(points, t_point) -> bool:
     return any(True for point in points if point == t_point)
 
-angle = pi/6
+angle = pi/3 # любое нечетное число.
 theta = 0
 phi = 0
 first = Direction([0, 0])
-set_of_point = list()
-set_of_point.append(first.point)
-while theta <= pi/2:
+set_of_point = set()
+set_of_point.add(tuple(first.point))
+while theta <= pi/2 - angle:
     theta += angle
-    while phi <= 2*pi*sin(theta):
-        a = Direction([theta, phi])
-        b = Direction([pi-theta, phi])
-        #a = np.array(a.point)
-        #b = np.array(b.point)
-        if a not in set_of_point: set_of_point.append(a.point)
-        if b not in set_of_point: set_of_point.append(b.point)
-        phi += angle
+    sin_t = sin(theta)
+    while phi <= 2*pi:
+        pair = [Direction([theta, phi]), Direction([pi-theta, phi])]
+        for point in pair:
+            if theta <= pi/2: set_of_point.add(tuple(point.point))
+        phi += angle / sin_t
     phi = 0
 
-for point in set_of_point:
-    print(point)
-
-points = np.array(set_of_point)
 
 
-'''points = np.array([[0, 0, 1], [0, 0, -1], [1, 0, 0],
-                   [0, 1, 0], [0, -1, 0] ])'''
+points = np.array([list(point) for point in list(set_of_point)])
+#for point in points:
+ #   print(point)
 
 radius = 1
 center = np.array([0, 0, 0])
