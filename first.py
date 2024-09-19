@@ -1,13 +1,33 @@
 import random
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from math import *
 #from scipy import spatial
 #import math
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from scipy.spatial import SphericalVoronoi, geometric_slerp
-from mpl_toolkits.mplot3d import proj3d
+#from mpl_toolkits.mplot3d import proj3d
+#from display_planet import initialize_scene
+import os
+import sys
+import bpy
 
+
+# Добавление пути директории проекта
+dir = os.path.dirname(bpy.data.filepath)
+if not dir in sys.path:
+    sys.path.append(dir)
+
+
+from display_planet import initialize_scene
+
+
+# this next part forces a reload in case you edit the source after you first start the blender session
+#import imp
+#imp.reload(generate)
+
+# this is optional and allows you to call the functions without specifying the package name
+#from generate import *
 
 
 class Direction:
@@ -94,12 +114,22 @@ points = np.array([list(point) for point in list(set_of_point)])
 #for point in points:
  #   print(point)
 
+#initialize_scene(points)
+
 radius = 1
 center = np.array([0, 0, 0])
 sv = SphericalVoronoi(points, radius, center) #объект типа диаграмма вороного
 
 # sort vertices (optional, helpful for plotting)
 sv.sort_vertices_of_regions()
+vertices = list()
+for vertice in sv.vertices:
+    vertices.append(vertice.tolist())
+
+
+initialize_scene(vertices)
+
+"""
 t_vals = np.linspace(0, 1, 2000)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -135,4 +165,4 @@ _ = ax.set_xticks([])
 _ = ax.set_yticks([])
 _ = ax.set_zticks([])
 fig.set_size_inches(4, 4)
-plt.show()
+plt.show()"""
