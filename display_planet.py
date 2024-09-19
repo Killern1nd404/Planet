@@ -2,8 +2,10 @@ import bpy
 import bmesh
 #from math import pi, cos, sin
 
+"""
 # Объявление файла как модуля для открытия в Blender
 my_module = bpy.data.texts["my_module"].as_module()
+"""
 
 
 def clear_scene():
@@ -85,8 +87,8 @@ def initialize_scene(vertexes):
     make_object_by_points(vertexes)
 
 
-# vertexes_ = [[0.5, 1.0, 0.0], (1.0, -1.0, 0.0), (-1.0, -1.0, 0.0), (-1.0, 1.0, 0.0), (1, 2, 3)]
-# initialize_scene(vertexes_)
+#vertexes_ = [[0.5, 1.0, 0.0], (1.0, -1.0, 0.0), (-1.0, -1.0, 0.0), (-1.0, 1.0, 0.0), (1, 2, 3)]
+#initialize_scene(vertexes_)
 
 
 """mesh = bpy.data.meshes.new('Basic_Sphere')
