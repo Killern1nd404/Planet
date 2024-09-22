@@ -1,48 +1,27 @@
 import bpy
 import bmesh
-#from math import pi, cos, sin
+import random
 
 """
 # Объявление файла как модуля для открытия в Blender
 my_module = bpy.data.texts["my_module"].as_module()
 """
 
+biomes_colors = {"Water": [0, (0, 0, 1, 1)],
+                 "Land": [1, (0.09, 0.4, 0.05, 1)]}
+
 
 def clear_scene():
+    # Переключение объекта
+    if bpy.context.object.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
     # Выделение всех объектов на сцене
     bpy.ops.object.select_all(action='SELECT')
     # Удаление выделенных объектов
     bpy.ops.object.delete(use_global=False, confirm=False)
 
 
-"""
-def move_vertex():
-    bpy.data.objects["Basic_Sphere.002"].data.vertices[0].co.x += 0.02
-    bpy.data.objects["Basic_Sphere.002"].data.vertices[0].co.y -= 0.02
-    bpy.data.objects["Basic_Sphere.002"].data.vertices[0].co.z += 0.03
-
-
-def create_sphere():
-    # Create an empty mesh and the object.
-    mesh = bpy.data.meshes.new('Basic_Sphere')
-    basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
-
-    # Add the object into the scene.
-    bpy.context.collection.objects.link(basic_sphere)
-
-    # Select the newly created object
-    bpy.context.view_layer.objects.active = basic_sphere
-    basic_sphere.select_set(True)
-
-    # Construct the bmesh sphere and assign it to the blender mesh.
-    bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, radius=1)
-    bm.to_mesh(mesh)
-    bm.free()
-"""
-
-
-def make_object_by_points(vertexes):
+def make_object_by_points(vertexes, faces):
     # Инициация объекта
     mesh = bpy.data.meshes.new("Planet")
     object_ = bpy.data.objects.new("Planet", mesh)
@@ -52,43 +31,49 @@ def make_object_by_points(vertexes):
     # Объявление объекта активным
     bpy.context.view_layer.objects.active = object_
 
-    # Рёбра и грани
+    # Рёбра
     edges = []
-    faces = []
 
     # Добавление объекта на сцену
     mesh.from_pydata(vertexes, edges, faces)
-    
-
-"""
-def make_object_by_points():
-    mesh = bpy.data.meshes.new("myBeautifulMesh")  # add the new mesh
-    obj = bpy.data.objects.new(mesh.name, mesh)
-    col = bpy.data.collections["Collection"]
-    col.objects.link(obj)
-    bpy.context.view_layer.objects.active = obj
-
-    vertexes = [[0.5,  1.0,  0.0], (1.0, -1.0,  0.0), (-1.0, -1.0,  0.0), (-1.0,  1.0,  0.0), (1, 2, 3)]
-
-    verts = [( 1.0,  1.0,  0.0),
-             ( 1.0, -1.0,  0.0),
-             (-1.0, -1.0,  0.0),
-             (-1.0,  1.0,  0.0)
-             ]  # 4 verts made with XYZ coords
-    edges = []
-    faces = [[0, 1, 2, 3], [0, 1, 4], [0, 3, 4], [2, 3, 4], [1, 2, 4]]
-
-    mesh.from_pydata(vertexes, edges, faces)
-"""
 
 
-def initialize_scene(vertexes):
+def create_material(mat_name, diffuse_color=(1, 1, 1, 1)):
+    mat = bpy.data.materials.new(name=mat_name)
+    mat.diffuse_color = diffuse_color
+    return mat
+
+
+def paint_regions(faces):
+    # Создание массива материалов
+    materials = []
+    for key, attributes in biomes_colors.items():
+        materials.append(create_material(key, attributes[1]))
+
+    # Переменная объекта
+    obj = bpy.context.object
+
+    # ТЕСТОВЫЙ НАБОР ДАННЫХ!!!!!!!!!!!
+    # В БУДУЩЕМ УДАЛИТЬ!!!!!!!!!!!!!!!
+    dataaaaaa = []
+    for _ in range(len(faces)):
+        dataaaaaa.append(random.choice(["Water", "Land"]))
+
+    # Добавление материалов к объекту
+    for material in materials:
+        obj.data.materials.append(material)
+
+    # Присваивание секторам цвет их биома
+    for i in range(len(dataaaaaa)):
+        obj.data.polygons[i].material_index = biomes_colors[dataaaaaa[i]][0]
+
+
+def initialize_scene(sphere_data):
+    vertexes = sphere_data.vertices
+    faces = sphere_data.regions
     clear_scene()
-    make_object_by_points(vertexes)
-
-
-#vertexes_ = [[0.5, 1.0, 0.0], (1.0, -1.0, 0.0), (-1.0, -1.0, 0.0), (-1.0, 1.0, 0.0), (1, 2, 3)]
-#initialize_scene(vertexes_)
+    make_object_by_points(vertexes, faces)
+    paint_regions(faces)
 
 
 """mesh = bpy.data.meshes.new('Basic_Sphere')
