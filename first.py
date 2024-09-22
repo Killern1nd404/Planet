@@ -13,10 +13,12 @@ from mpl_toolkits.mplot3d import proj3d
 class Direction:
 
 
-    def __init__(self, direction):
-        self._direction = direction
+    def __init__(self, data):
+        self._direction = None
         self._point = None
-        self.point_by_dir()
+        if len(data) == 2: self.direction = data
+        elif len(data) == 3: self.point = data
+        else: raise
 
     def point_by_dir(self):
         theta = self._direction[0]
@@ -24,9 +26,9 @@ class Direction:
         self._point = [sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta)]
 
     def dir_by_point(self):
-        self.direction = [acos(self.point[2]),
-                          atan2(self.point[1],
-                                self.point[0])]
+        x, y, z = self._point
+        radius = sqrt(x * x + y * y + z * z)
+        self.direction = [acos(z / radius), atan2(y, x)]
 
     @property
     def direction(self):
@@ -38,7 +40,6 @@ class Direction:
         phi = direction[1]
         theta %= pi
         phi %= (2*pi)
-        print((theta, phi))
         self._direction = [theta, phi]
         self.point_by_dir()
 
@@ -100,6 +101,19 @@ sv = SphericalVoronoi(points, radius, center) #объект типа диагр�
 
 # sort vertices (optional, helpful for plotting)
 sv.sort_vertices_of_regions()
+
+for i in range(10):
+    points = []
+    for region in sv.regions:
+        sum = np.array([0., 0., 0.])
+        for j in region:
+            sum += sv.vertices[j]
+        point = Direction((sum/len(region)).tolist())
+        points.append(point.point)
+    sv = SphericalVoronoi(points, radius, center)
+    sv.sort_vertices_of_regions()
+
+
 t_vals = np.linspace(0, 1, 2000)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -111,7 +125,7 @@ y = np.outer(np.sin(u), np.sin(v))
 z = np.outer(np.ones(np.size(u)), np.cos(v))
 ax.plot_surface(x, y, z, color='y', alpha=0.1)
 # plot generator points
-ax.scatter(points[:, 0], points[:, 1], points[:, 2], c='b')
+#ax.scatter(points[:, 0], points[:, 1], points[:, 2], c='b')
 # plot Voronoi vertices
 ax.scatter(sv.vertices[:, 0], sv.vertices[:, 1], sv.vertices[:, 2],
                    c='g')
@@ -120,7 +134,7 @@ for region in sv.regions:
 
    n = len(region)
    for i in range(n):
-       print(region[i])
+       #print(region[i])
        start = sv.vertices[region][i]
        end = sv.vertices[region][(i + 1) % n]
        result = geometric_slerp(start, end, t_vals)
@@ -128,7 +142,7 @@ for region in sv.regions:
                result[..., 1],
                result[..., 2],
                c='k')
-   print("\n")
+   #print("\n")
 ax.azim = 10
 ax.elev = 40
 _ = ax.set_xticks([])
