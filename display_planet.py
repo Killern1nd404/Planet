@@ -12,16 +12,25 @@ biomes_colors = {"Water": [0, (0, 0, 1, 1)],
 
 
 def clear_scene():
-    # Переключение объекта
-    if bpy.context.object.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
+    # Переключение режима
+    if bpy.context.scene.objects:
+        if bpy.context.object.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
     # Выделение всех объектов на сцене
     bpy.ops.object.select_all(action='SELECT')
     # Удаление выделенных объектов
     bpy.ops.object.delete(use_global=False, confirm=False)
+    # Удаление всех материалов
+    for material in bpy.data.materials:
+        material.user_clear()
+        bpy.data.materials.remove(material)
+    # Удаление всех мэшей
+    for mesh in bpy.data.meshes:
+        mesh.user_clear()
+        bpy.data.meshes.remove(mesh)
 
 
-def make_object_by_points(vertexes, faces):
+def make_object(vertexes, faces):
     # Инициация объекта
     mesh = bpy.data.meshes.new("Planet")
     object_ = bpy.data.objects.new("Planet", mesh)
@@ -69,10 +78,14 @@ def paint_regions(faces):
 
 
 def initialize_scene(sphere_data):
+    # Создание массивов вершин и граней
     vertexes = sphere_data.vertices
     faces = sphere_data.regions
+    # Очистка сцены
     clear_scene()
-    make_object_by_points(vertexes, faces)
+    # Создание объектов
+    make_object(vertexes, faces)
+    # Покраска секторов
     paint_regions(faces)
 
 
