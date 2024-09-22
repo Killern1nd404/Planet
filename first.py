@@ -7,6 +7,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial import SphericalVoronoi, geometric_slerp
 from mpl_toolkits.mplot3d import proj3d
+import os
+import sys
+import bpy
+
+
+# Добавление пути директории проекта
+dir = os.path.dirname(bpy.data.filepath)
+if not dir in sys.path:
+    sys.path.append(dir)
+
+
+from display_planet import initialize_scene
 
 
 
