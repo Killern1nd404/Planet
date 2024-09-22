@@ -70,6 +70,48 @@ class Relations:
         self.scalar = None
         self.scalar_()
 
+class Map(SphericalVoronoi):
+
+    def __int__(self, points, radius, center):
+        super().__init__(points, radius, center)
+        self.sort_vertices_of_regions()
+        self.regions_as_obj = []
+
+    def createRegions(self):
+
+        for region in self.regions:
+            pass
+
+'''class Edge():
+
+    def __init__(self, point1, point2):
+        self._begin = point1
+        self._end = point2
+
+    @property
+    def point1(self): return self._begin
+
+    @point1.setter
+    def point1(self, point):
+        self._begin = point
+
+    @property
+    def point2(self): return self._end
+
+    @point2.setter
+    def point2(self, point): self._end = point
+
+    def __eq__(self, other):
+        return ((self.point1 == other.point1 and self.point2 == other.point2) or
+                (self.point1 == other.point2 and self.point2 == other.point1))'''
+
+class Region():
+
+    def __init__(self, vertices):
+        self.id = None
+        self.vertices = vertices
+        self.edges = []
+
 angle = pi/3 # любое нечетное число.
 theta = 0
 phi = 0
