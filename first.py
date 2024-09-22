@@ -70,9 +70,6 @@ class Relations:
         self.scalar = None
         self.scalar_()
 
-def find_point(points, t_point) -> bool:
-    return any(True for point in points if point == t_point)
-
 angle = pi/3 # любое нечетное число.
 theta = 0
 phi = 0
