@@ -69,6 +69,9 @@ class Relations:
         self.scalar = None
         self.scalar_()
 
+def find_point(points, t_point) -> bool:
+    return any(True for point in points if point == t_point)
+
 angle = pi/3 # любое нечетное число.
 theta = 0
 phi = 0
@@ -97,18 +100,7 @@ sv = SphericalVoronoi(points, radius, center) #объект типа диагр�
 
 # sort vertices (optional, helpful for plotting)
 sv.sort_vertices_of_regions()
-
-vertices = list()
-for vertice in sv.vertices:
-    vertices.append(vertice.tolist())
-
-
-
-#print(sv.regions)
-
-
-
-"""t_vals = np.linspace(0, 1, 2000)
+t_vals = np.linspace(0, 1, 2000)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 # plot the unit sphere for reference (optional)
@@ -143,4 +135,4 @@ _ = ax.set_xticks([])
 _ = ax.set_yticks([])
 _ = ax.set_zticks([])
 fig.set_size_inches(4, 4)
-plt.show()"""
+plt.show()
