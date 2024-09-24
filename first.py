@@ -1,12 +1,12 @@
 import random
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from math import *
 #from scipy import spatial
 #import math
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from scipy.spatial import SphericalVoronoi, geometric_slerp
-from mpl_toolkits.mplot3d import proj3d
+#from mpl_toolkits.mplot3d import proj3d
 import os
 import sys
 import bpy
@@ -94,28 +94,36 @@ class Map(SphericalVoronoi):
         for region in self.regions:
             pass
 
-'''class Edge():
+class Edge():
 
-    def __init__(self, point1, point2):
-        self._begin = point1
-        self._end = point2
-
-    @property
-    def point1(self): return self._begin
-
-    @point1.setter
-    def point1(self, point):
-        self._begin = point
+    def __init__(self, points):
+        self._points = points
+        self._regions = []
 
     @property
-    def point2(self): return self._end
+    def points(self): return self._points
 
-    @point2.setter
-    def point2(self, point): self._end = point
+    @points.setter
+    def points(self, points):
+        self._points = points
+
+    @property
+    def regions(self): return self._regions
+
+    @regions.setter
+    def regions(self, regions):
+        self._regions = regions
+
+    def set_neighbour(self, reg):
+        if len(self._regions) < 2:
+            self._regions.append(reg)
+        else: raise
+
+    ####
 
     def __eq__(self, other):
-        return ((self.point1 == other.point1 and self.point2 == other.point2) or
-                (self.point1 == other.point2 and self.point2 == other.point1))'''
+        return ((self.points == other.points) or
+                (self.points[0] == other.point[1] and self.point[1] == other.point[0]))
 
 class Region():
 
@@ -164,8 +172,8 @@ for i in range(10):
     sv = SphericalVoronoi(points, radius, center)
     sv.sort_vertices_of_regions()
 
-
-t_vals = np.linspace(0, 1, 2000)
+initialize_scene(sv)
+'''t_vals = np.linspace(0, 1, 2000)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 # plot the unit sphere for reference (optional)
@@ -200,4 +208,4 @@ _ = ax.set_xticks([])
 _ = ax.set_yticks([])
 _ = ax.set_zticks([])
 fig.set_size_inches(4, 4)
-plt.show()
+plt.show()'''
