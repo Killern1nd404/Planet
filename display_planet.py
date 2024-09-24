@@ -2,11 +2,6 @@ import bpy
 import bmesh
 import random
 
-"""
-# Объявление файла как модуля для открытия в Blender
-my_module = bpy.data.texts["my_module"].as_module()
-"""
-
 biomes_colors = {"Water": [0, (0, 0, 1, 1)],
                  "Land": [1, (0.09, 0.4, 0.05, 1)]}
 
@@ -60,7 +55,8 @@ def paint_regions(faces):
         materials.append(create_material(key, attributes[1]))
 
     # Переменная объекта
-    obj = bpy.context.object
+    #obj = bpy.context.object
+    obj = bpy.data.objects[0]
 
     # ТЕСТОВЫЙ НАБОР ДАННЫХ!!!!!!!!!!!
     # В БУДУЩЕМ УДАЛИТЬ!!!!!!!!!!!!!!!
