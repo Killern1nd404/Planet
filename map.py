@@ -61,10 +61,11 @@ class Region:
 
 class Map(SphericalVoronoi):
 
-    def __int__(self, angle, radius=1, center=np.array([0, 0, 0])):
+    def __int__(self, angle, epochs, radius=1, center=np.array([0, 0, 0])):
         self.points = []
         self.generate_points(angle)
         self.generate(self.points, radius, center)
+        self.lloyds_relaxation(epochs)
         self.regions_as_obj = []
         self.create_regions()
 
