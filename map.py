@@ -46,8 +46,9 @@ class Direction:
 
 class Region:
 
-    def __init__(self, id, edges):
-        self.id = None
+    def __init__(self, id, edges, face):
+        self.id = id
+        self.face = face
         self.edges = edges
         self.neighbors = set()
 
@@ -61,7 +62,7 @@ class Region:
 
 class Map(SphericalVoronoi):
 
-    def __int__(self, angle, epochs, radius=1, center=np.array([0, 0, 0])):
+    def __init__(self, angle, epochs, radius=1, center=np.array([0, 0, 0])):
         self.points1 = []
         self.generate_points(angle)
         self.generate(self.points1, radius, center)
@@ -81,7 +82,8 @@ class Map(SphericalVoronoi):
                                         {
                                             frozenset([region[i-1], region[i]]) #frozenset из индексов вершин
                                             for i in range(len(region))
-                                        }
+                                        },
+                                        region
                                         )
                                        )
             counter_reg += 1
