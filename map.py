@@ -110,8 +110,8 @@ class Map(SphericalVoronoi):
                     if theta <= pi / 2: set_of_point.add(tuple(point.point))
                 phi += angle / sin_t
             phi = 0
-        for i in range(angle*5):
-            a = Direction([random.uniform(0, pi), random.uniform(0, pi)])
+        for i in range(angle_c*50):
+            a = Direction([np.random.normal(pi/2, 0.55), random.uniform(0, pi*2)])
             set_of_point.add(tuple(a.point))
 
         self.points1 = np.array([point for point in set_of_point])
