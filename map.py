@@ -62,15 +62,15 @@ class Region:
 class Map(SphericalVoronoi):
 
     def __int__(self, angle, epochs, radius=1, center=np.array([0, 0, 0])):
-        self.points = []
+        self.points1 = []
         self.generate_points(angle)
-        self.generate(self.points, radius, center)
+        self.generate(self.points1, radius, center)
         self.lloyds_relaxation(epochs)
         self.regions_as_obj = []
         self.create_regions()
 
     def generate(self, points, radius, center):
-        super().__init__(self.points, radius, center)
+        super().__init__(points, radius, center)
         self.sort_vertices_of_regions()
 
     def create_regions(self):
@@ -108,7 +108,7 @@ class Map(SphericalVoronoi):
                 phi += angle / sin_t
             phi = 0
 
-        self.points = np.array([point for point in set_of_point])
+        self.points1 = np.array([point for point in set_of_point])
 
     def lloyds_relaxation(self, epochs, center=np.array([0, 0, 0]), radius=1):
         for i in range(epochs):
