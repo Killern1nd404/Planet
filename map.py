@@ -70,6 +70,7 @@ class Map(SphericalVoronoi):
         self.lloyds_relaxation(epochs)
         self.regions_as_obj = []
         self.create_regions()
+        self.areas = dict()
 
     def generate(self, points, radius, center):
         super().__init__(points, radius, center)
@@ -126,3 +127,22 @@ class Map(SphericalVoronoi):
                 point = Direction((sum / len(region)).tolist())
                 points.append(point.point)
             self.generate(points, radius, center)
+
+    def create_areas(self, num_of_centers, type_areas="T"):
+        #centers = list({random.choice(self.points1) for i in range(num_of_centers)})
+        set_of_free_region = {id for id in range(len(self.regions_as_obj))}
+        centers = [set_of_free_region.pop() for i in range(num_of_centers)]
+        areas = {center: [1, center,] for center in centers}
+        while set_of_free_region:
+            for area in areas:
+                for i in range(areas[area][0]):
+                    region = self.regions_as_obj[areas[area][-i]]
+                    new_regions = region.neighbors & set_of_free_region
+                    set_of_free_region = set_of_free_region - new_regions
+                    areas[area].extend(new_regions)
+                    areas[area][0] = len(new_regions)
+        self.areas[type_areas] = areas
+        for area in areas:          #отладка
+            print(areas[area])
+
+
