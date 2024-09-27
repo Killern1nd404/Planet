@@ -129,20 +129,44 @@ class Map(SphericalVoronoi):
             self.generate(points, radius, center)
 
     def create_areas(self, num_of_centers, type_areas="T"):
-        #centers = list({random.choice(self.points1) for i in range(num_of_centers)})
         set_of_free_region = {id for id in range(len(self.regions_as_obj))}
-        centers = [set_of_free_region.pop() for i in range(num_of_centers)]
+        centers = []
+        for i in range(num_of_centers):
+            a = random.choice(list(set_of_free_region))
+            centers.append(a)
+            set_of_free_region.remove(a)
+        #print(len(set_of_free_region))
+        #print(centers)
         areas = {center: [1, center,] for center in centers}
-        while set_of_free_region:
+        #print(f"len = {len(set_of_free_region)}")
+        while True:
+            is_stop = 0
             for area in areas:
+                print(f"area = {area}")
+
+                for i in areas:
+                    if areas[i][0] != 0: break
+                else:
+                    is_stop = 1
+                    break
                 for i in range(areas[area][0]):
-                    region = self.regions_as_obj[areas[area][-i]]
+                    #print(areas[area][-i])
+                    region = self.regions_as_obj[areas[area][-i-1]]
+                    print(f"area = {area} region id = {region.id} neihb = {region.neighbors}")
                     new_regions = region.neighbors & set_of_free_region
+                    #print(new_regions)                                          #otladka
                     set_of_free_region = set_of_free_region - new_regions
+                    #print(f"len = {len(set_of_free_region)}")                                   #otladka
                     areas[area].extend(new_regions)
                     areas[area][0] = len(new_regions)
+                    if set_of_free_region == set(): break
+                    print(f"region = {i} new regions = {new_regions}")
+                    print(f"region = {i} area {area} = {areas[area]}")
+                if set_of_free_region == set(): break
+            if set_of_free_region == set() or is_stop: break
         self.areas[type_areas] = areas
         for area in areas:          #отладка
             print(areas[area])
+        print(len(set_of_free_region))
 
 
