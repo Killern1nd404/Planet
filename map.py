@@ -2,6 +2,7 @@ from math import pi, sqrt, acos, atan2, sin, cos
 import numpy as np
 from scipy.spatial import SphericalVoronoi, geometric_slerp
 import random
+from copy import *
 
 #from test_console import region
 
@@ -87,7 +88,7 @@ class Area:
 
     def sub_init(self, center_id=None, regions_id=None):
         #if center_id == None and regions_id == None: raise
-        if not self.regions_id: self.regions_id = regions_id if regions_id is not None else [center_id,]
+        if not self.regions_id: self.regions_id = self.regions_id + regions_id if regions_id is not None else [center_id,]
         for region in self.regions_id:
             self.map.regions_as_obj[region].area = self.id
         self.update_perimeter()
@@ -120,8 +121,8 @@ class Area:
                     new_regions.add(reg)
                     self.map.free_regions.remove(reg)
                 counter -= 1
-            self.regions_id.extend(list(new_regions))
-            print(new_regions)
+            self.regions_id += list(new_regions)
+            print(self.regions_id)
             self.update_perimeter()
 
 #00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -147,7 +148,7 @@ class LithosphericPlate(Area):
         if self.type and self.limit_c_c[0] < self.limit_c_c[1]:
             self.create_continental_crust()
         else:
-            if not self.areas[1].regions_id: self.areas[1].sub_init(regions_id=self.areas[0].perimeter["external"])
+            if not self.areas[1].regions_id: self.areas[1].sub_init(regions_id=list(self.areas[0].perimeter["external"]))
             else: self.create_continental_crust()
         if self.areas[0].condition and self.areas[1].condition:
             self.init_as_area()
@@ -158,11 +159,12 @@ class LithosphericPlate(Area):
         if condition == 1:
             return self.regions_id
         else:
-            regions = copy(self.areas[0].regions_id).extend(self.areas[1].regions_id)
+            regions = self.areas[0].regions_id + self.areas[1].regions_id
             return regions
 
     def init_as_area(self): #в планах инит в конце
         super().__init__(map=self.map, regions_id=self.get_regions(0))
+        print(f"________________________AREA {self.id_lp} INIT______________________________")
         self.update_perimeter()
 
     def create_continental_crust(self):
@@ -304,6 +306,9 @@ class Map(SphericalVoronoi):
             for state in conditions_areas:
                 if not state: break
             else: break
-            if len(self.free_regions) == 0: break
+            if len(self.free_regions) == 0:
+                for plate in self.areas:
+                    plate.init_as_area()
+                break
             if o == 1000: break
             print(len(self.free_regions))
