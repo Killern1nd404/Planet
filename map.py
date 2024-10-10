@@ -91,6 +91,7 @@ class Area:
         if not self.regions_id: self.regions_id = self.regions_id + regions_id if regions_id is not None else [center_id,]
         for region in self.regions_id:
             self.map.regions_as_obj[region].area = self.id
+            self.map.free_regions.discard(region)
         self.update_perimeter()
 
     def update_perimeter(self):
@@ -108,22 +109,20 @@ class Area:
 
     def capture_external_perimeter(self, percent=1):   #percent float{0, ... , 1}
         print(f"enter in capture_external_perimeter in area {self.id}, state {self.condition}")
-        if not self.condition:
-            print(self.perimeter["external"])
-            new_regions = set()
-            counter = int(len(self.perimeter["external"]) * percent) + 1
-            print(counter)
-            for reg in self.perimeter["external"]:
-                if counter <= 0: break
-                region = self.map.regions_as_obj[reg]
-                if reg in self.map.free_regions:
-                    region.area = self.id
-                    new_regions.add(reg)
-                    self.map.free_regions.remove(reg)
-                counter -= 1
-            self.regions_id += list(new_regions)
-            print(self.regions_id)
-            self.update_perimeter()
+        #if not self.condition:
+        print(self.perimeter["external"])
+        new_regions = set()
+        counter = int(len(self.perimeter["external"]) * percent) + 1
+        for reg in self.perimeter["external"]:
+            if counter <= 0: break
+            region = self.map.regions_as_obj[reg]
+            if reg in self.map.free_regions:
+                region.area = self.id
+                new_regions.add(reg)
+                self.map.free_regions.remove(reg)
+            counter -= 1
+        self.regions_id += list(new_regions)
+        self.update_perimeter()
 
 #00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
@@ -131,29 +130,34 @@ class LithosphericPlate(Area):
 
     id_lp = 0
 
-    def __init__(self, map, type, center_id, limit_c_c=0.5):
+    def __init__(self, map, type, center_id, limit_c_c):
         #TYPE = 1: Континетальная
         #TYPE = 0: Океаническая
         self.map = map
-        self.limit_c_c = [type, limit_c_c]
+        self.limit_c_c = limit_c_c
         self.type = type
         self.id_lp = LithosphericPlate.id_lp
         LithosphericPlate.id_lp += 1
         self.epoch = 0
-        self.areas = [Area(map, center_id=center_id), Area(map)]
+        if type:
+            self.areas = [Area(map, center_id=center_id), Area(map)]
+        else:
+            self.areas = [Area(map), Area(map, center_id=center_id)]
         self.regions_id = [center_id,]
         self.condition = 0
 
     def next_epoch(self):
-        if self.type and self.limit_c_c[0] < self.limit_c_c[1]:
-            self.create_continental_crust()
+        if self.type and len(self.get_regions(0)) < self.limit_c_c:
+            self.create_continental_crust(0)
+        elif not self.type:
+            self.create_ocean_crust(1)
         else:
-            if not self.areas[1].regions_id: self.areas[1].sub_init(regions_id=list(self.areas[0].perimeter["external"]))
-            else: self.create_continental_crust()
-        if self.areas[0].condition and self.areas[1].condition:
-            self.init_as_area()
+            if not self.areas[1].regions_id:
+                self.areas[1].sub_init(regions_id=list(self.areas[0].perimeter["external"]))
+            #else:
+            self.create_ocean_crust(1)
         self.epoch += 1
-        print(f"epoch {self.epoch} for plate {self.id_lp} completed")
+        #print(f"epoch {self.epoch} for plate {self.id_lp} completed")
 
     def get_regions(self, condition=1):
         if condition == 1:
@@ -167,13 +171,14 @@ class LithosphericPlate(Area):
         print(f"________________________AREA {self.id_lp} INIT______________________________")
         self.update_perimeter()
 
-    def create_continental_crust(self):
+    def create_continental_crust(self, n):
         print(f"create_continental_crust")
-        self.areas[0].capture_external_perimeter(1 if self.epoch % 2 == 0 else np.random.normal(0.6, 0.25))
+        self.areas[n].capture_external_perimeter(1 if self.epoch % 4 == 0 else np.random.normal(0.5, 0.25))
 
-    def create_ocean_crust(self):
+    def create_ocean_crust(self, n):
         print(f"create_ocean_crust")
-        self.areas[1].capture_external_perimeter(1 if self.epoch % 3 == 0 else np.random.normal(0.6, 0.25))
+        #self.areas[n].capture_external_perimeter(1 if self.epoch % 3 == 0 else np.random.normal(0.5, 0.25))
+        self.areas[n].capture_external_perimeter()
 
 #00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
@@ -189,6 +194,7 @@ class Map(SphericalVoronoi):
         self.free_regions = {i for i in range(len(self.regions))}
         self.create_regions()
         self.areas = list()
+        self.lit_plates = []
 
     def generate(self, points, radius, center):
         super().__init__(points, radius, center)
@@ -282,32 +288,28 @@ class Map(SphericalVoronoi):
         self.areas.extend(areas)"""
 
     def create_lit_plates(self, quantity=10):
-        conditions_areas = []
+        average_number_of_regions = len(self.regions_as_obj)//quantity
+        self.free_regions = {i for i in range(len(self.regions))}
+        for reg in self.regions_as_obj: reg.area = None
+        self.lit_plates.clear()
         for i in range(quantity):
             center = random.choice(list(self.free_regions))
             self.free_regions.remove(center)
-            self.areas.append(
+            self.lit_plates.append(
                 LithosphericPlate(
                     self,
                     type=1 if i < quantity - quantity//10 else 0,
                     center_id=center,
-                    limit_c_c=np.random.normal(0.5, 0.15)
+                    limit_c_c=np.random.normal(0.4*average_number_of_regions, 0.15*average_number_of_regions)
                 )
             )
-            conditions_areas.append(0)
         o = 0
         while True:
             o += 1
-            for plate in self.areas:
-                if plate.condition:
-                    conditions_areas[self.areas.index(plate)] = 1
-                    continue
+            for plate in self.lit_plates:
                 plate.next_epoch()
-            for state in conditions_areas:
-                if not state: break
-            else: break
             if len(self.free_regions) == 0:
-                for plate in self.areas:
+                for plate in self.lit_plates:
                     plate.init_as_area()
                 break
             if o == 1000: break
